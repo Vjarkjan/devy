@@ -22,6 +22,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--emulator", required=True)
     parser.add_argument("--xvfb", default=shutil.which("Xvfb"))
+    parser.add_argument("--digraph-rom", type=Path, help="ROM del repositorio independiente digraph-ds")
     parser.add_argument("--examples", nargs="+", default=["drawing", "hello"], choices=["drawing", "hello", "hardware", "paint", "digraph"])
     args = parser.parse_args()
     if not args.xvfb:
@@ -50,6 +51,8 @@ def main():
         for name in args.examples:
             logpath = out / f"{name}.log"
             rom = ROOT / f"output/{name}.nds"
+            if name == "digraph" and args.digraph_rom:
+                rom = args.digraph_rom.resolve()
             rom_hash = hashlib.sha256(rom.read_bytes()).hexdigest()
             with logpath.open("w") as log:
                 emulator = subprocess.Popen([args.emulator, "--disable-sound", "--num-cores", "1",

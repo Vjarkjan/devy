@@ -86,6 +86,9 @@ con un archivo `checks-<ejemplos>.json`. Son artefactos regenerables fuera de
 Git. El script comprueba gráficos y entrada; no escribe partidas ni confirma
 operaciones FAT.
 
+Para comprobar una ROM construida desde el repositorio independiente, añade
+`--examples digraph --digraph-rom ../digraph-ds/output/digraph-ds.nds`.
+
 La procedencia se puede auditar con [source-inventory.json](source-inventory.json).
 [LIMITATIONS.md](../LIMITATIONS.md) describe las restricciones de hardware y
 los contratos de las configuraciones, sin utilizarlos como lista de pendientes.

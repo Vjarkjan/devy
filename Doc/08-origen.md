@@ -13,6 +13,11 @@ compilable en `examples/digraph/`. Los assets de referencia y las herramientas
 también se conservan. El juego y el editor no se convierten en dependencias
 obligatorias de cada aplicación que use el crate.
 
+La aplicación independiente se mantiene en
+[Vjarkjan/digraph-ds](https://github.com/Vjarkjan/digraph-ds) y fija una revisión
+de devy como dependencia. El ejemplo de este repositorio conserva la base de
+referencia de la integración.
+
 La primera extracción del renderer indexado se basó en `Digraph-dsi`.
 Ahora convive con las implementaciones por capas del árbol `kts-nds`. `cred`
 queda fuera, conforme al alcance solicitado. Ningún proyecto de origen se

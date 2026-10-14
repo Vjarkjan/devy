@@ -9,6 +9,11 @@ gestos, trazos, FAT/SD, NitroFS, Maxmod, tareas cooperativas y RTC.
 Los conversores de assets y el editor de escenas están en `tools/` y se
 compilan para el ordenador. `cred` no forma parte de esta integración.
 
+El editor [Digraph DS](https://github.com/Vjarkjan/digraph-ds) tiene su propio
+repositorio y consume devy como dependencia. Aquí se conserva una versión de
+referencia en `examples/digraph/` para comprobar la integración del motor.
+El desarrollo de la aplicación continúa en `digraph-ds`.
+
 ## Probar
 
 ```bash
@@ -36,7 +41,7 @@ Las ROM quedan en `output/`. Las rutas del SDK se ajustan con `BLOCKSDS` y
 
 ```toml
 [dependencies]
-devy = { path = "../devy" }
+devy = { git = "https://github.com/Vjarkjan/devy", branch = "blockds" }
 ```
 
 ```rust
