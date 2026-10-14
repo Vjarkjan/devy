@@ -61,5 +61,31 @@ aunque el SDK puede reservar memoria internamente.
 
 La escritura reemplaza el archivo y comprueba `fflush` y `fclose`. No es una
 transacción ni garantiza recuperación ante apagados. Las operaciones son
-bloqueantes: evita ejecutarlas cada frame. No se incluyen NitroFS, serialización,
-listas de directorios ni escritura asíncrona.
+bloqueantes: evita ejecutarlas cada frame. Para assets de ROM utiliza
+[`nitrofs`](12-assets-audio.md); para guardado por slots y tareas, la API
+`save` descrita a continuación. La serialización pertenece a la aplicación;
+el ejemplo Digraph usa serde y postcard.
+
+## Guardado por slots de kts-nds
+
+`devy::save` conserva la API de slots, disponible también sin la feature
+`storage`. Monta FAT al arrancar cuando se añade `SavePlugin`; `StoragePlugin`
+continúa ofreciendo montaje perezoso y lectura en un buffer de tamaño elegido.
+
+```rust
+use devy::prelude::*;
+fn guardar(save: Res<SaveStorage>) {
+    if save.status().is_ready() {
+        let guardado = save.write("partida1", b"datos");
+        let _ = guardado;
+    }
+}
+let mut app = App::new();
+app.add_plugins(SavePlugin { base_dir: Some("fat:/mi-juego/".into()) });
+```
+
+Los nombres de slot no aceptan rutas ni `..`. `read`, `write`, `exists` y
+`delete` actúan sobre `<directorio>/<slot>.sav`. `read_async` y `write_async`
+devuelven un `Task`; conserva el handle hasta recoger su resultado. Cambia el
+directorio a `sd:/mi-juego/` sólo cuando ese volumen esté disponible en tu
+cargador. Una escritura confirmada no garantiza recuperación ante cortes.

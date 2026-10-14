@@ -1,53 +1,50 @@
-# Origen y migración
+# Procedencia y migración desde kts-nds
 
-La extracción parte del checkout local `Digraph-dsi` 0.5.10 y de su dependencia
-`bevy_nds`, fijada al commit
+La fuente de esta iteración es el **árbol de trabajo local**
+`/home/yfjor/prgm/kts-nds`, cuya base Git es
 `c8a157ce660af200f7283ba09c713a9ba91d384e` de
-[ChristopherJMiller/kts-nds](https://github.com/ChristopherJMiller/kts-nds/tree/c8a157ce660af200f7283ba09c713a9ba91d384e).
+[ChristopherJMiller/kts-nds](https://github.com/ChristopherJMiller/kts-nds).
+Ese directorio contiene modificaciones locales de Digraph Explorer 0.5.10;
+no se ha supuesto que el commit represente por sí solo todo su contenido.
 
-Se consultó ese checkout fijado de Cargo para el modelo de runtime, entrada y
-plugins. Del editor proceden el reparto de pantallas, el framebuffer indexado,
-la separación por target y la necesidad de montaje FAT perezoso. No se han
-copiado sus algoritmos de grafos, interfaz, formatos de proyecto ni recursos.
-El repositorio original queda intacto.
+Los módulos del motor se integran en `src/`. El editor de digráficas activo,
+con su análisis, interfaz, renderer y persistencia, queda como aplicación
+compilable en `examples/digraph/`. Los assets de referencia y las herramientas
+también se conservan. El juego y el editor no se convierten en dependencias
+obligatorias de cada aplicación que use el crate.
 
-Los hashes de los archivos de referencia están en [SOURCES.md](SOURCES.md).
-El adaptador C, los buffers con seguimiento de cambios y la interfaz de devy
-se han escrito para esta extracción. El crate no depende de rutas a los
-proyectos de origen ni de un checkout Git de `kts-nds`.
+La primera extracción del renderer indexado se basó en `Digraph-dsi`.
+Ahora convive con las implementaciones por capas del árbol `kts-nds`. `cred`
+queda fuera, conforme al alcance solicitado. Ningún proyecto de origen se
+modifica ni se necesita como dependencia local para compilar devy.
 
-Los checkouts consultados no incluyen un archivo de licencia para esa capa.
-Se conserva su atribución y `publish = false`; falta definir la licencia de
-distribución del código derivado antes de publicar el paquete.
+El [inventario](source-inventory.json) registra rutas de origen, SHA-256 y
+destinos. [SOURCES.md](SOURCES.md) describe las adaptaciones y conserva las
+referencias de la extracción inicial. La licencia de distribución requiere
+resolverse antes de publicar; los paquetes derivados mantienen `publish = false`.
 
-## Desde una aplicación con bevy_nds
+## Correspondencia de módulos
 
-| Uso anterior | Uso en devy |
+| Crate anterior | Ruta actual |
 | --- | --- |
-| `bevy_nds::run(app)` | `devy::run(app)` |
-| `bevy_nds::InputPlugin`, `DsButton` | Mismos nombres en `devy` |
-| `ButtonInput<DsButton>` y `Touches` | Tipos originales de Bevy 0.16.1 |
-| VideoPlugin y MMIO propio | VideoPlugin, Frames y NonSendMut&lt;Video&gt; |
-| Frame indexado superior e inferior | `frames.top` y `frames.bottom` |
-| Conversión de índices en cada subida | `set_color` y presentación interna |
-| Temporizadores privados | `TimePlugin` y `Time<()>` |
-| FFI de archivos en Rust | `StoragePlugin` y `Storage`, feature `storage` |
+| `bevy_nds_runtime`, `bevy_nds_input`, `bevy_nds_time` | `devy::runtime`, `input`, `time` |
+| `bevy_nds_video` | `devy::video::HardwareVideoPlugin` y tipos compartidos |
+| `bevy_nds_gesture`, `bevy_nds_loop` | `devy::gesture`, `devy::stroke` |
+| `bevy_nds_text`, `bevy_nds_bg`, `bevy_nds_sprite` | `devy::text`, `background`, `sprite` |
+| `bevy_nds_3d`, `bevy_nds_3d_cull`, `bevy_nds_math` | `devy::render3d`, `culling`, `math` |
+| `bevy_nds_audio`, `bevy_nds_scene` | `devy::audio`, `scene` |
+| `bevy_nds_nitrofs`, `bevy_nds_save` | `devy::nitrofs`, `save` |
+| `bevy_nds_cothread`, `bevy_nds_rtc`, `bevy_nds_diagnostics` | `devy::cothread`, `rtc`, `diagnostics` |
+| `bevy_nds_3d_macros`, `bevy_nds_3d_obj` | Soporte de `devy::include_obj!` en `tools/` |
 
-Pasos recomendados para Digraph-dsi:
+Para conservar una aplicación por capas, cambia los imports y usa
+`HardwarePlugins`. Añade `SavePlugin` si quieres montar el almacenamiento al
+arrancar; no se incluye automáticamente en ese grupo. Para conservar MMIO
+propio como el ejemplo Digraph, instala únicamente `HardwareVideoPlugin` y
+los servicios necesarios, sin el renderer indexado ni plugins que reutilicen
+sus regiones.
 
-1. Sustituir la dependencia `bevy_nds` por `devy`. Mantener las dependencias
-   Bevy directas en 0.16.1 si el código todavía las importa por su nombre.
-2. Adaptar el arranque para añadir `DsPlugins` o sus plugins individuales.
-3. Retirar la inicialización propia de BG3/VRAM antes de activar VideoPlugin:
-   ambas implementaciones reservarían los mismos bancos.
-4. Conectar los renderizadores a `Frames`. `pixels_mut()` permite una primera
-   migración con copia completa; después se pueden introducir regiones.
-5. Trasladar las paletas mediante `Color` y `set_color`. Mantener la lógica de
-   temas, edición, serialización y análisis en la aplicación.
-6. Reemplazar el montaje y las operaciones FAT por `Storage` si interesa usar
-   el módulo compartido. La política `sd:/`/`fat:/` sigue siendo de la aplicación.
-7. Compilar con los scripts nuevos y probar entrada, gráficos y archivos.
-
-No es una sustitución binaria de toda la API de `bevy_nds`. `Consoles`,
-`Backgrounds`, tareas cooperativas, texto ECS, gestos, audio y 3D no se exportan.
-La migración completa del editor no forma parte de esta extracción.
+Para adoptar la presentación parcial, usa `DsPlugins`, retira la inicialización
+MMIO propia de pantallas y dibuja sobre `Frames`. `pixels_mut()` permite una
+primera adaptación con copia completa; `plot`, `line`, `fill_rect` y `blit`
+permiten después limitar la transferencia a las filas modificadas.

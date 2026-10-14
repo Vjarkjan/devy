@@ -17,8 +17,14 @@ de esta guía explican cada operación por separado.
 | [05 · Tiempo](05-tiempo.md) | Delta, temporizadores y diagnóstico |
 | [06 · Almacenamiento](06-almacenamiento.md) | Leer, guardar y manejar errores FAT |
 | [07 · Diseño](07-diseno.md) | Módulos, memoria, ABI y decisiones |
-| [08 · Origen](08-origen.md) | Fuentes y migración desde Digraph-dsi |
+| [08 · Origen](08-origen.md) | Fuentes y migración desde kts-nds |
 | [09 · Verificación](09-verificacion.md) | Pruebas y alcance de los resultados |
+| [10 · Capas 2D](10-capas-2d.md) | Texto ECS, tiles, sprites y canvas |
+| [11 · Gráficos 3D](11-graficos-3d.md) | Mallas, cámara, OBJ y escenas |
+| [12 · Assets y audio](12-assets-audio.md) | NitroFS, conversores y Maxmod |
+| [13 · Gestos y tareas](13-gestos-tareas.md) | Eventos táctiles, trazos y trabajo cooperativo |
+| [14 · Matemáticas y relojes](14-matematicas-relojes.md) | Punto fijo, RTC y rendimiento |
 
-El [estado actual](../LIMITATIONS.md) distingue funciones disponibles,
-verificaciones realizadas y trabajo pendiente.
+[LIMITATIONS.md](../LIMITATIONS.md) documenta restricciones reales de hardware
+y de las configuraciones del crate. El estado de las pruebas tiene su propio
+documento de verificación.

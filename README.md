@@ -1,36 +1,36 @@
 # devy · BlocksDS
 
-Un crate Rust para crear aplicaciones Nintendo DS con Bevy ECS 0.16.1 y
-BlocksDS. Reúne la capa de plataforma utilizada por **Digraph-dsi**: ejecución
-ARM9, entrada, dos pantallas indexadas, reloj y almacenamiento FAT opcional.
+Devy reúne en **un crate de ejecución** la integración Rust/Bevy/BlocksDS de
+`kts-nds` y su evolución local como Digraph. Conserva Bevy ECS 0.16.1 y reúne
+los renderizadores, entrada, archivos, audio y servicios del motor.
 
-Bevy sigue siendo una dependencia. Aquí se mantiene su adaptación a DS, con
-una API común y sin depender del workspace `kts-nds` ni de otro repositorio
-local. Es una primera versión de desarrollo; consulta
-[LIMITATIONS.md](LIMITATIONS.md) antes de integrarla.
+Incluye 2D por framebuffer y por capas, sprites OAM, 3D por hardware, touch,
+gestos, trazos, FAT/SD, NitroFS, Maxmod, tareas cooperativas y RTC.
+Los conversores de assets y el editor de escenas están en `tools/` y se
+compilan para el ordenador. `cred` no forma parte de esta integración.
 
 ## Probar
 
 ```bash
-cargo test --locked --all-features
+cargo test --locked --workspace --all-features
 cargo run --locked --example hello
 cargo run --locked --example drawing
+bash scripts/nds.sh rom --example digraph
 ```
 
-El ejemplo `drawing` genera `output/preview/top.ppm` y `bottom.ppm` usando el
-mismo framebuffer que la ROM. La ejecución en host no abre una ventana.
-
-Con Rust nightly, `rust-src`, Wonderful Toolchain y BlocksDS instalados:
+Con BlocksDS y Wonderful Toolchain instalados, el ejemplo completo prepara
+assets, construye una ROM con NitroFS y utiliza el ARM7 de Maxmod:
 
 ```bash
-bash scripts/nds.sh rom --example hello
-bash scripts/nds.sh rom --example drawing
+bash scripts/assets.sh
+DEVY_NITROFS="$PWD/output/nitrofs" bash scripts/nds.sh rom --example hardware
+bash scripts/nds.sh rom --example paint
 bash scripts/nds.sh rom --example storage --features storage
 ```
 
-Las ROM se guardan en `output/`. Las rutas por defecto del SDK están bajo
-`/opt/wonderful`; se pueden cambiar con `BLOCKSDS` y `WONDERFUL_TOOLCHAIN`.
-Las instrucciones completas están en [Compilación](Doc/01-compilacion.md).
+Las ROM quedan en `output/`. Las rutas del SDK se ajustan con `BLOCKSDS` y
+`WONDERFUL_TOOLCHAIN`. La ejecución host comprueba lógica sin abrir una ventana;
+`drawing` también genera imágenes PPM.
 
 ## Usarlo como dependencia
 
@@ -42,32 +42,25 @@ devy = { path = "../devy" }
 ```rust
 use devy::prelude::*;
 
-#[derive(Resource, Default)]
-struct Contador(u32);
-
-fn contar(mut contador: ResMut<Contador>) {
-    contador.0 += 1;
-}
-
 let mut app = App::new();
-app.add_plugins(DsCorePlugins)
-    .init_resource::<Contador>()
-    .add_systems(Update, contar);
+app.add_plugins(DsPlugins); // Entrada, tiempo y renderer indexado.
+app.add_systems(Update, |mut frames: ResMut<Frames>| {
+    frames.bottom.set_color(1, Color::rgb8(255, 180, 40));
+    frames.bottom.line(20, 20, 120, 80, 1).unwrap();
+});
 app.update();
-assert_eq!(app.world().resource::<Contador>().0, 1);
+present(&mut app);
 ```
 
-Para una ROM se exporta `main` y se entrega la aplicación a `devy::run(app)`.
-[hello.rs](examples/hello.rs) muestra el programa completo, válido en host y DS.
+Para una ROM, el punto de entrada llama a `devy::run(app)`.
+`HardwarePlugins` selecciona la configuración de kts-nds con consolas, gestos,
+relojes, NitroFS y tareas. Sobre ella se añaden los plugins de fondos, sprites,
+3D o audio que utilice la aplicación. No se combina con `DsPlugins`, porque
+ambos grupos configuran el vídeo.
 
-## Qué aporta esta rama
+La copia por regiones del renderer indexado, el texto por diferencias, las
+display lists, el culling y los cálculos en punto fijo evitan trabajo repetido.
+Su efecto depende de la escena; no se presenta una mejora de FPS sin medirla.
 
-- Un único crate de plataforma, con importaciones desde `devy::prelude`.
-- Copia de los tramos de filas modificados y actualización de paletas por cambio.
-- Presentación después de VBlank, separada de la lógica de `Update`.
-- ABI de libnds comprobada por el compilador C del SDK.
-- Pruebas en host con botones, lápiz y tiempo inyectables.
-- Montaje FAT al solicitar una operación, mediante la feature `storage`.
-
-[Guía de programación](Doc/README.md) · [Límites y estado](LIMITATIONS.md) ·
-[Origen del código](Doc/08-origen.md)
+[Guía de programación](Doc/README.md) · [Restricciones](LIMITATIONS.md) ·
+[Verificación](Doc/09-verificacion.md) · [Procedencia](Doc/08-origen.md)

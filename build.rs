@@ -67,4 +67,9 @@ fn main() {
     // Un archivo estático sí se propaga al ejecutable consumidor del crate.
     println!("cargo:rustc-link-search=native={}", out.display());
     println!("cargo:rustc-link-lib=static=devy_nds");
+    println!(
+        "cargo:rustc-link-search=native={}",
+        sdk.join("libs/maxmod/lib").display()
+    );
+    println!("cargo:rustc-link-lib=static=mm9");
 }

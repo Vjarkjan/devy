@@ -1,111 +1,94 @@
-# Limitaciones y estado actual
+# Límites de devy
 
-Devy 0.1.0 es una extracción funcional de la capa Bevy/BlocksDS usada por
-Digraph-dsi. Reúne esa integración en un crate; Bevy ECS 0.16.1 continúa siendo
-una dependencia externa. La API todavía puede cambiar.
+Devy es una iteración de **kts-nds**, incluida su evolución local como Digraph.
+Tiene renderer 2D, gráficos 3D por hardware, touch, almacenamiento FAT/SD,
+NitroFS y audio. Estos servicios están implementados; no son funcionalidades
+pendientes. Este documento describe las restricciones al utilizarlos.
 
-## Disponible
+## Capacidades disponibles
 
-| Parte | Estado |
+| Área | Implementación |
 | --- | --- |
-| ECS | App, entidades, componentes, recursos, sistemas y eventos de Bevy |
-| Runtime ARM9 | Allocator del SDK, panic handler, critical-section y espera VBlank |
-| Entrada | Doce botones, lápiz, transiciones y mapeo según la mano |
-| Vídeo | Dos buffers 256 × 192 indexados, paletas, líneas, rectángulos y blit |
-| Presentación | Intervalos por fila, RGB555 arriba e índices empaquetados abajo |
-| Texto | Consola superior de libnds; oculta inicialmente |
-| Tiempo | Time&lt;()&gt; con contador del SDK y delta inyectable en host |
-| Diagnóstico | Regiones copiadas, tiempo de subida DS y final fuera de VBlank |
-| FAT | Feature opcional; montaje perezoso, lectura acotada y escritura bloqueante |
-| Host | Pruebas sin hardware y generación de PPM |
+| Bevy | ECS, entidades, componentes, recursos, sistemas, eventos y plugins |
+| 2D | Framebuffers indexados, dibujo de líneas, rectángulos y blit; presentación parcial |
+| Capas 2D | Texto ECS, fondos de tiles, bitmap RGB555 y canvas táctil |
+| Sprites | OAM del motor secundario, posiciones, paletas y carga desde NitroFS |
+| 3D | Display lists, OBJ, cámara, transformaciones, iluminación, culling, picking, niebla y contornos |
+| Entrada | Botones, touch, controles por mano, gestos y trazos |
+| Archivos | Assets en NitroFS; lectura y escritura FAT/SD; guardado por slots |
+| Audio | Efectos y muestras musicales en bucle mediante Maxmod en ARM7 |
+| Ejecución | Runtime ARM9, tareas cooperativas, tiempo monotónico y RTC |
+| Herramientas | Conversores OBJ/PNG/WAV/RON, editor de escenas y lectura de rendimiento |
 
-## Límites de diseño
+La [guía](Doc/README.md) muestra las APIs y los ejemplos. El
+[estado de verificación](Doc/09-verificacion.md) indica qué se ha probado.
 
-- Sólo se implementa el backend **ARM9 de Nintendo DS**. El ARM7 lo aporta el
-  ejecutable estándar de BlocksDS. No hay backend de ventana, Android ni Web.
-- No se incluye el renderer de Bevy, wgpu, assets de Bevy, audio, 3D, sprites
-  OAM, fondos por tiles, gestos, tareas cooperativas, NitroFS ni RTC.
-- Se usa `no_std` con **alloc**. Bevy y los framebuffers requieren heap; no es
-  una biblioteca sin asignaciones. El framebuffer ocupa 96 KiB de píxeles,
-  más paletas, regiones, metadatos y el estado ECS.
-- La pantalla superior reserva VRAM A para consola y B para bitmap. La inferior
-  reserva C. Una aplicación no debe reconfigurar esos bancos mientras use
-  VideoPlugin. Sólo se admite un propietario físico durante la ejecución.
-- Cada pantalla permite 256 colores elegidos por su propia paleta. La salida
-  superior usa RGB555, pero la API de dibujo sigue siendo indexada.
-- Un intervalo por fila puede incluir píxeles sin cambios. Cambiar la paleta
-  superior o usar `pixels_mut()` provoca una subida completa de esa pantalla.
-- VBlank sincroniza el inicio de Present. No hay doble buffer, DMA ni límite
-  automático de trabajo: una copia grande puede terminar en la zona visible.
-- `TimePlugin` no instala tiempo virtual ni pasos fijos. El contador del SDK
-  reserva el timer de sistema; no lo reutilices en otro subsistema.
-- `run` no retorna ni gestiona AppExit, suspensión, reanudación o salida al
-  cargador. El pánico muestra rojo y detiene la aplicación, sin mensaje ni log.
-- FAT depende del cargador y la unidad disponible. La escritura no es atómica,
-  el I/O bloquea y el SDK puede reservar memoria. En host devuelve Unsupported.
-- El crate no es compatible con todos los plugins de `bevy_nds`. La migración
-  de Digraph-dsi requiere adaptar su vídeo y retirar el MMIO que ahora posee devy.
+## Hardware y memoria
 
-## Optimización y evidencia
+- El target es ARM9 de Nintendo DS. El ECS y la lógica del juego comparten ese
+  procesador. Las tareas cooperativas no añaden núcleos para ejecutar sistemas
+  en paralelo; ARM7 atiende los servicios del SDK y el audio.
+- La DS dispone de 4 MiB de RAM principal. Código, heap, pilas, ECS y assets
+  deben caber juntos. `no_std` no significa ausencia de heap: este crate usa
+  `alloc`. Que un modelo compile no garantiza que quepa en la consola.
+- Cada LCD tiene 256 × 192 píxeles. Sólo la pantalla inferior tiene touch y
+  proporciona un contacto; no permite gestos multitáctiles reales.
+- La GPU 3D tiene una canalización fija. No puede ejecutar shaders de wgpu,
+  OpenGL moderno o el renderer de Bevy de escritorio. Devy utiliza sus propios
+  renderizadores sobre libnds.
+- Hay un único motor 3D. `Display3d` permite enviarlo a una u otra pantalla,
+  intercambiando los motores completos. No genera dos vistas 3D independientes
+  simultáneas con esta configuración.
 
-Se evita copiar píxeles en frames sin cambios. Las subidas superiores combinan
-dos colores por escritura alineada de 32 bits; abajo se mantienen las
-escrituras de 16 bits requeridas por VRAM. Los intervalos usan memoria fija y
-el almacenamiento sólo se monta cuando se utiliza.
+## Combinaciones de vídeo
 
-Estas mejoras reducen trabajo concreto, pero **no hay una comparación de FPS
-o latencia contra Digraph-dsi en una consola física**. No se atribuyen a devy
-mediciones de otras aplicaciones. El coste depende del ECS, de la lógica del
-programa y del área modificada.
+`VideoPlugin` reserva A/B/C para el renderer de framebuffers.
+`HardwareVideoPlugin` prepara las consolas y deja que los plugins de capas
+asignen sus regiones. **No se pueden instalar ambos en la misma aplicación**;
+el crate rechaza esa combinación.
 
-## Verificación de esta versión
-
-Comprobado el **13 de octubre de 2026** con Rust estable 1.95.0, nightly
-1.100.0 (`420ed2a0c`, 2026-09-18), libnds 1.8.0 y ndstool 1.23.0 del SDK local.
-El target JSON y las opciones inestables pueden necesitar revisión con otro
-nightly; `NDS_TOOLCHAIN` permite seleccionar el que vayas a utilizar.
-
-| Comprobación | Resultado |
+| Configuración | Restricción |
 | --- | --- |
-| `cargo test --locked --offline --all-features` | 12 pruebas de código y 14 doctests correctos |
-| `cargo test --locked --offline --no-default-features` | 11 pruebas de código y 13 doctests correctos |
-| Formato y Clippy de host | Sin errores ni advertencias |
-| Rustdoc con `-D warnings` | Documentación generada correctamente |
-| Clippy ARM9, todos los ejemplos y features | Correcto |
-| ROMs `hello`, `drawing`, `storage` | Compiladas y empaquetadas |
-| Consumidor con sólo `devy` como dependencia directa | Ejecución host y enlace ARM9 correctos |
-| DeSmuME 0.9.13, modo DS | Arranque de hello/drawing, botón A y lápiz comprobados |
-| Pantalla superior de drawing | Coincide píxel por píxel con el PPM del host |
-| Animación inferior | Movimiento observado y respuesta táctil comprobados |
+| `VideoPlugin` | 256 índices por pantalla; la salida superior convierte la paleta a RGB555 |
+| `HardwareVideoPlugin` + `BackgroundPlugin` | BG1 usa tiles de 4 bpp; el bitmap RGB555 completo usa BG3 del motor principal |
+| Canvas inferior | Comparte los primeros 32 KiB de C con los tiles inferiores: no pueden coexistir |
+| Texto + 3D | El 3D ocupa BG0 del motor principal, la misma capa que su consola de texto |
+| `SpritePlugin` | Usa OAM secundario y VRAM I; admite hasta 128 sprites y 16 imágenes/paletas, sujetos a los 16 KiB de gráficos disponibles |
+| Formato `.sprite` | Imágenes cuadradas de 8, 16, 32 o 64 píxeles, 4 bpp y hasta 16 colores por imagen |
 
-En el frame 120 de `drawing`, el host registra **80 píxeles en 8 filas** en
-lugar de una subida completa de 98 304 píxeles entre las dos pantallas. Es una
-medición del trabajo de transferencia de ese ejemplo, no de FPS. Las pruebas
-también verifican cero píxeles transferidos en un frame sin cambios.
+Las regiones asignadas no pueden reutilizarse por MMIO externo sin invalidar
+el estado del renderer. Los límites de estas configuraciones no son
+prohibiciones universales del hardware: otro reparto de VRAM requiere cambiar
+el backend. [El mapa de memoria](Doc/07-diseno.md) detalla las asignaciones.
 
-Tamaños de las ROM generadas con el perfil release y todas las features:
-`hello.nds`: 368 128 bytes; `drawing.nds`: 370 176 bytes;
-`storage.nds`: 417 792 bytes. Las capturas y el resultado automatizado quedan
-en `output/emulator/`, fuera de Git y regenerables con el script de verificación.
+El framebuffer indexado ocupa 96 KiB de píxeles en RAM, más paletas y seguimiento
+de cambios. Una paleta nueva en la pantalla superior obliga a convertirla
+completa. VBlank sincroniza `Present`, pero no garantiza que todo su trabajo
+termine antes de la siguiente zona visible. No se puede prometer una tasa de
+frames fija independientemente de la carga.
 
-No se ha probado una DS/DSi física, el modo DSi de un cargador, suspensión ni
-lectura/escritura FAT en tarjeta. La licencia de distribución del código
-derivado está pendiente; Cargo mantiene `publish = false`.
+## Archivos, audio y ejecución
 
-## Ejemplos
+- NitroFS es de sólo lectura. Para guardar se necesita FAT y una unidad que
+  el cargador exponga: DLDI/flashcart o SD en un entorno DSi compatible.
+  Una ROM no puede crear acceso a una tarjeta que el cargador no ofrece.
+- Los assets deben tener los formatos de los conversores incluidos. Los PNG,
+  WAV y OBJ fuente se convierten en el ordenador; no se entregan directamente
+  a OAM, a Maxmod o al motor de geometría.
+- Maxmod necesita su biblioteca ARM9, un ARM7 compatible y un soundbank válido.
+  `Music` reproduce una muestra en bucle; el formato `.wav` fuente no es un
+  flujo de audio que se decodifique desde SD durante la reproducción.
+- Guardar no es una transacción resistente a cortes de alimentación. Una
+  escritura interrumpida puede dejar un archivo incompleto. Las APIs de tareas
+  no convierten una operación FAT en una escritura atómica.
+- Una tarea que no cede el control puede detener los frames. Destruir un
+  `Task` pendiente espera su finalización; no equivale a cancelarlo.
+- El RTC refleja la fecha local configurada en la consola. No proporciona
+  sincronización de red, zona horaria ni una fuente monotónica; para duraciones
+  se usa `Time`.
+- `run` es un bucle sin retorno. Un pánico detiene la aplicación. El scheduler
+  no convierte `AppExit` en un regreso al cargador.
 
-```bash
-cargo run --locked --example hello
-cargo run --locked --example drawing -- output/preview
-bash scripts/nds.sh rom --example hello
-bash scripts/nds.sh rom --example drawing
-bash scripts/nds.sh rom --example storage --features storage
-```
-
-`hello` muestra texto y cambia el fondo con A. `drawing` dibuja una gráfica
-superior y un cuadro móvil inferior, controlable con el lápiz. `storage`
-guarda con A y lee con B en `fat:/devy/demo.bin`.
-
-La [guía en Doc/](Doc/README.md) explica los módulos, los patrones de uso y las
-decisiones de diseño. Los comandos de comprobación están en
-[Doc/09-verificacion.md](Doc/09-verificacion.md).
+Las restricciones anteriores son de hardware, formato o contrato de la API.
+Las pruebas en host verifican lógica y formatos; no sustituyen la ejecución de
+la ROM en un emulador o una consola.

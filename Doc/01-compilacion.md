@@ -27,7 +27,7 @@ bash scripts/nds.sh rom --example hello
 ```
 
 El script usa `armv5te-nintendo-ds.json`, reconstruye `core` y `alloc`, enlaza
-el CRT de BlocksDS y empaqueta el ejecutable ARM9 con `arm7_minimal.elf` del
+el CRT de BlocksDS y empaqueta el ejecutable ARM9 con `arm7_maxmod.elf` del
 SDK. Python 3 sólo se necesita para el empaquetado. No hace falta Just ni Nix.
 
 `build` produce ELF; `rom` produce ELF y NDS; `check` revisa Rust sin completar
@@ -83,8 +83,30 @@ opciones de `.cargo/nds.toml` y `scripts/nds-linker.sh`.
 | `runtime` | Predeterminada. Activa `allocator` y `panic-handler` en DS |
 | `allocator` | Allocator basado en el heap del SDK |
 | `panic-handler` | Pantallas rojas y detención ante un panic |
-| `storage` | Compila el módulo FAT y `StoragePlugin` |
+| `storage` | Añade la API FAT acotada y perezosa `StoragePlugin` |
 
 `default-features = false` permite que el ejecutable aporte su allocator y
 panic handler. No elimina Bevy ni su uso de `alloc`. La implementación de
 `critical-section` sigue siendo de devy y debe existir una sola en la ROM.
+
+El resto de los módulos de kts-nds está disponible sin features adicionales.
+Los plugins activan sus sistemas y recursos; añadir la dependencia por sí sola
+no inicia audio ni reserva framebuffers. El enlace elimina código sin usar.
+
+Para incluir archivos en la ROM, define `DEVY_NITROFS` con el directorio que
+se empaquetará. `DEVY_ARM7` admite una ruta a otro ELF ARM7 compatible con los
+servicios que utilices. El valor predeterminado soporta Maxmod.
+
+```bash
+bash scripts/assets.sh
+DEVY_NITROFS="$PWD/output/nitrofs" bash scripts/nds.sh rom --example hardware
+```
+
+El editor visual se compila aparte:
+
+```bash
+cargo run --manifest-path tools/scene-editor/Cargo.toml
+```
+
+Su workspace independiente mantiene las dependencias de ventana fuera de la
+compilación de ROM y de las pruebas normales del motor.

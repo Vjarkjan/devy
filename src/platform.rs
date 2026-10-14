@@ -1,4 +1,4 @@
-//! Único acceso Rust al SDK. No se compila FFI en host.
+//! Adaptador del renderer indexado, entrada, reloj y runtime.
 use crate::{
     input::InputSample,
     video::{Color, DsScreen},

@@ -1,0 +1,496 @@
+{
+  "source": "/home/yfjor/prgm/kts-nds",
+  "note": "Inventario del árbol local, incluidos cambios de Digraph sin commit. Cada archivo Rust de los crates bevy_nds* tiene un destino. El núcleo inicial se fusionó; se conserva como ejemplo la aplicación Digraph activa.",
+  "files": [
+    {
+      "source": "assets/backgrounds/bitmap/sunset.png",
+      "sha256": "01d774cb064505e11a76c1204683e9913ef46210bdb01c001ca98468855f0112",
+      "destination": "assets/backgrounds/bitmap/sunset.png"
+    },
+    {
+      "source": "assets/backgrounds/tiled/grid.png",
+      "sha256": "e345037ee6d03969c17829e546f4e74c8fd7b425fe55412997d63aad98c7d942",
+      "destination": "assets/backgrounds/tiled/grid.png"
+    },
+    {
+      "source": "assets/cube.obj",
+      "sha256": "caa420f20f3be7cc4c44e48be6b8c90bb9956c7aab4b0bde3ba77417e0db7b15",
+      "destination": "assets/cube.obj"
+    },
+    {
+      "source": "assets/icon.bmp",
+      "sha256": "90be5f85a717804af514996baa163e9e36741749956041a908b7537060548d8e",
+      "destination": "assets/icon.bmp"
+    },
+    {
+      "source": "assets/levels/facility/atrium.ron",
+      "sha256": "5a280569e24c1a85a7af7bbd43e64cab70fbadbe8f80ed8d66cd8db1840bbc82",
+      "destination": "assets/levels/facility/atrium.ron"
+    },
+    {
+      "source": "assets/levels/facility/corridor.ron",
+      "sha256": "9ff1e8ad01f1d4ad01bf27140ca646b1e06e00095f420e052ad24bb24fd65ae4",
+      "destination": "assets/levels/facility/corridor.ron"
+    },
+    {
+      "source": "assets/levels/facility/level.ron",
+      "sha256": "feb5a71a669ceef52fff02bc83e1c471dc7a6152eeb5ed5a530e55203c4f51bf",
+      "destination": "assets/levels/facility/level.ron"
+    },
+    {
+      "source": "assets/prefabs/landmark_block.ron",
+      "sha256": "ef487330394dd8cae724a1cd87ba0ba565129d96c70f4a091a4b2ae65c6d200c",
+      "destination": "assets/prefabs/landmark_block.ron"
+    },
+    {
+      "source": "assets/prefabs/patroller.ron",
+      "sha256": "26bb3120771e8ea8297d2ba2fa09fea78018f318a9832879c1d9955cb40da43f",
+      "destination": "assets/prefabs/patroller.ron"
+    },
+    {
+      "source": "assets/sprites/blip.png",
+      "sha256": "3202318a6a8805993fea6a5028d34e361fb9ac030363f7dbd9c1276bae99a090",
+      "destination": "assets/sprites/blip.png"
+    },
+    {
+      "source": "assets/sprites/blip_hit.png",
+      "sha256": "5a2f8decdeefb7fa3d17c06b9daff1f573ab8c927cf44661358e9ff172359d51",
+      "destination": "assets/sprites/blip_hit.png"
+    },
+    {
+      "source": "assets/sprites/dot.png",
+      "sha256": "dda8c8f6062d404c5eaeae6069bd93299d1bbb98f668610e67cb1e92a66b962c",
+      "destination": "assets/sprites/dot.png"
+    },
+    {
+      "source": "assets/sprites/obstacle.png",
+      "sha256": "f0e01c4fb3b795392076f65225d42b66cff463d775db08a5ec71389b941bbd72",
+      "destination": "assets/sprites/obstacle.png"
+    },
+    {
+      "source": "assets/sprites/player.png",
+      "sha256": "cb4a463d3b5f9d1e09270c2f8962f11e227d462097e83d5dae2e901cf842caf3",
+      "destination": "assets/sprites/player.png"
+    },
+    {
+      "source": "assets/sprites/sprite.png",
+      "sha256": "588d90b132ce7c84bad9840c5dec429b43527366e1d49c65819454cb6c44bdcd",
+      "destination": "assets/sprites/sprite.png"
+    },
+    {
+      "source": "assets/teapot.obj",
+      "sha256": "478a0f2d105c2c7682dd0b7708e4b56651e091262fcaac81044cc4a0d3bb8f4a",
+      "destination": "assets/teapot.obj"
+    },
+    {
+      "source": "audio/music/piano_loop.wav",
+      "sha256": "ba2467d1c4c435f241a456fcd49596a2eb7d35533b6c1d54dfc4f930cc68fb61",
+      "destination": "audio/music/piano_loop.wav"
+    },
+    {
+      "source": "audio/sfx/blip_select.wav",
+      "sha256": "3040d833b4d7373cedd4c4ecfdd12210b8d159f48e08ee0d2b527572466e66bf",
+      "destination": "audio/sfx/blip_select.wav"
+    },
+    {
+      "source": "crates/bevy_nds/src/lib.rs",
+      "sha256": "a7a2d1e1f599c2280baeab5c4bb4d1f29a30674d4eb731dddb2c8c332ff9cb0c",
+      "destination": "src/lib.rs",
+      "adaptation": "Merged into the shared runtime/video/API; source is not copied verbatim."
+    },
+    {
+      "source": "crates/bevy_nds_3d/src/ffi.rs",
+      "sha256": "c9a10b33669ed8b34ed38328112e011c38cb620d25ed38ad37781f547109949c",
+      "destination": "src/render3d/ffi.rs"
+    },
+    {
+      "source": "crates/bevy_nds_3d/src/lib.rs",
+      "sha256": "d8d77929dc01cc3bc651c83d8594541ec89f00e563a55bd3500542016045398d",
+      "destination": "src/render3d/mod.rs"
+    },
+    {
+      "source": "crates/bevy_nds_3d_cull/src/lib.rs",
+      "sha256": "217f872b80e1a654de1ab942088ccab2f787145e9dacf1ea023a4dc4ee4cca8d",
+      "destination": "src/culling/mod.rs"
+    },
+    {
+      "source": "crates/bevy_nds_3d_macros/Cargo.toml",
+      "sha256": "3688d1f6ab0b3e81fee08382ec53d250155abcf3fd98f2b4833e9ade648fd194",
+      "destination": "tools/bevy_nds_3d_macros/Cargo.toml"
+    },
+    {
+      "source": "crates/bevy_nds_3d_macros/src/lib.rs",
+      "sha256": "a9081c7f87d13ea6dc8c4ffdb90d2e121fabcef203eec7ee1c4247fb1354a084",
+      "destination": "tools/bevy_nds_3d_macros/src/lib.rs"
+    },
+    {
+      "source": "crates/bevy_nds_3d_obj/Cargo.toml",
+      "sha256": "0cf1a47131333015223400d06b30cdc45e2b231002a49fef5539c135612aa585",
+      "destination": "tools/bevy_nds_3d_obj/Cargo.toml"
+    },
+    {
+      "source": "crates/bevy_nds_3d_obj/src/lib.rs",
+      "sha256": "3ea0e89eec4175c03c25fb8501d072eded27fc046094d3e6f005e59cd9c3a971",
+      "destination": "tools/bevy_nds_3d_obj/src/lib.rs"
+    },
+    {
+      "source": "crates/bevy_nds_audio/src/ffi.rs",
+      "sha256": "b4f06c79b992018b5ce43d4638f221f5fb5ac716d0b1ef3937fca537486bc7a1",
+      "destination": "src/audio/ffi.rs"
+    },
+    {
+      "source": "crates/bevy_nds_audio/src/lib.rs",
+      "sha256": "6a12dc3d80dbd4f5a03558c2668a901d219b1dcf01eac8ea680d9afef8a82950",
+      "destination": "src/audio/mod.rs"
+    },
+    {
+      "source": "crates/bevy_nds_audio/src/sfx.rs",
+      "sha256": "dde6c3a0c54bfc0ca9bc9f61141ae9ddeb7f504c3a995a8fac00120d0e3130af",
+      "destination": "src/audio/sfx.rs"
+    },
+    {
+      "source": "crates/bevy_nds_bg/src/asset.rs",
+      "sha256": "149533abb3c1c668296fd4ceb43a250bfb44854e71a655cc742aa0b57332c682",
+      "destination": "src/background/asset.rs"
+    },
+    {
+      "source": "crates/bevy_nds_bg/src/ffi.rs",
+      "sha256": "e30eacbe5711cabe9f44f282f4f21d1054a1566ab2a0e9c3d0d8d7d5581755cd",
+      "destination": "src/background/ffi.rs"
+    },
+    {
+      "source": "crates/bevy_nds_bg/src/lib.rs",
+      "sha256": "18d2123643ad0c54991be864579d5bf280f88217864eda0ba7fba3407f58a7b6",
+      "destination": "src/background/mod.rs"
+    },
+    {
+      "source": "crates/bevy_nds_cothread/src/lib.rs",
+      "sha256": "077af85bf232ad48637fed8be6c35b38d6644253727e4e486910e37bd32f5174",
+      "destination": "src/cothread/mod.rs"
+    },
+    {
+      "source": "crates/bevy_nds_cothread/src/task.rs",
+      "sha256": "7a0b6cc46a9b4e5f7d2140c77dd3903b5980b3cf28a099d43f4e46efca277c6c",
+      "destination": "src/cothread/task.rs"
+    },
+    {
+      "source": "crates/bevy_nds_diagnostics/src/lib.rs",
+      "sha256": "44e1918da5f740ca1dd84a7725d02eeaf977273791c376c80c2fa30a518807e4",
+      "destination": "src/diagnostics/mod.rs"
+    },
+    {
+      "source": "crates/bevy_nds_gesture/src/lib.rs",
+      "sha256": "66027b14c89acf1feed7803f4062c71c801ed6b4113feb9b38654474bf7b4fc1",
+      "destination": "src/gesture/mod.rs"
+    },
+    {
+      "source": "crates/bevy_nds_input/src/lib.rs",
+      "sha256": "1c5e5331657b704b078b941f57bbd6602bd22910e1c0a70e80f264a892da8dc0",
+      "destination": "src/input.rs",
+      "adaptation": "Merged into the shared runtime/video/API; source is not copied verbatim."
+    },
+    {
+      "source": "crates/bevy_nds_loop/src/lib.rs",
+      "sha256": "07eb6aca486a30405a5ed3eda4f23da50cfafdda532e41aa0e5bb163d987ef54",
+      "destination": "src/stroke/mod.rs"
+    },
+    {
+      "source": "crates/bevy_nds_math/src/fx.rs",
+      "sha256": "e3e3bc16afc76ffdd8c065e1f5bb6b39c393606aa9d9503d1012253799100cb9",
+      "destination": "src/math/fx.rs"
+    },
+    {
+      "source": "crates/bevy_nds_math/src/fx_vec.rs",
+      "sha256": "d8a84d97945e816253dab274abfca31f036e36dc7d9cc5c25e4d84c49a248e70",
+      "destination": "src/math/fx_vec.rs"
+    },
+    {
+      "source": "crates/bevy_nds_math/src/hw.rs",
+      "sha256": "ef89fd550f7fb059ab144f231eea6b6b6f37a7214850b9232487f10d4d41f41f",
+      "destination": "src/math/hw.rs"
+    },
+    {
+      "source": "crates/bevy_nds_math/src/lib.rs",
+      "sha256": "480a674b2321e26ccfb55a364a878e509baea941847af6b55b47af8fa2f02171",
+      "destination": "src/math/mod.rs"
+    },
+    {
+      "source": "crates/bevy_nds_math/src/mat.rs",
+      "sha256": "591bcf8d1ac4bee8854159da1a444e0fe7219ed5b3df9dab30a7c4215eeec5e0",
+      "destination": "src/math/mat.rs"
+    },
+    {
+      "source": "crates/bevy_nds_math/src/radial.rs",
+      "sha256": "db56b8ec5e93a28a4a9bf0cd1e92ee972a9deefd5a63bddf063a09fe57f69415",
+      "destination": "src/math/radial.rs"
+    },
+    {
+      "source": "crates/bevy_nds_math/src/stick.rs",
+      "sha256": "fa7aa5b4fd980e196c7fa68c0bcaefda4908166509a6aaaa39dc7c6828288c80",
+      "destination": "src/math/stick.rs"
+    },
+    {
+      "source": "crates/bevy_nds_nitrofs/src/lib.rs",
+      "sha256": "75b34c1873d0010f0e757794516b47e6562f5ad611479ba4851c261ba706ce48",
+      "destination": "src/nitrofs/mod.rs"
+    },
+    {
+      "source": "crates/bevy_nds_rtc/src/lib.rs",
+      "sha256": "f5a0cc7f7caf20ee3bbda76d19f2e4a00139c84e99b8d9b06856b665d6a407d0",
+      "destination": "src/rtc/mod.rs"
+    },
+    {
+      "source": "crates/bevy_nds_runtime/src/lib.rs",
+      "sha256": "5d7c96dcdd7aac533b666f1819bf2908f08eac3bcf8768483e0890c2f1417077",
+      "destination": "src/runtime.rs",
+      "adaptation": "Merged into the shared runtime/video/API; source is not copied verbatim."
+    },
+    {
+      "source": "crates/bevy_nds_save/src/ffi.rs",
+      "sha256": "baad2a1bb9c0b0cb73f8e725183e6d9e8734961b7a8422a268c76847c258f4cd",
+      "destination": "src/save/ffi.rs"
+    },
+    {
+      "source": "crates/bevy_nds_save/src/lib.rs",
+      "sha256": "6d3e7750fcf5497c0075fcc0ca9d4746152dc0b02842c68dd6080a4a3c71fffa",
+      "destination": "src/save/mod.rs"
+    },
+    {
+      "source": "crates/bevy_nds_save/src/sys.rs",
+      "sha256": "0fec4d4516e32c27e757873655845b12044ccca4d472172f5dd5c3f03c1bb99b",
+      "destination": "src/save/sys.rs"
+    },
+    {
+      "source": "crates/bevy_nds_scene/src/asset.rs",
+      "sha256": "b4a904bfccf9247019e66ce0f174bb4b0e3b4bbe932e27c25bacd4c2d2119ccc",
+      "destination": "src/scene/asset.rs"
+    },
+    {
+      "source": "crates/bevy_nds_scene/src/lib.rs",
+      "sha256": "a77db32edceeca7cc8e347b19323a2b33848ef46e9584fdefb092cce04e3e61d",
+      "destination": "src/scene/mod.rs"
+    },
+    {
+      "source": "crates/bevy_nds_sprite/src/asset.rs",
+      "sha256": "24feed632326513ca26378d0614141c3cceaddac86dab692a9bb33e78ada3a74",
+      "destination": "src/sprite/asset.rs"
+    },
+    {
+      "source": "crates/bevy_nds_sprite/src/ffi.rs",
+      "sha256": "b83929623f595b602b4edcf55c69906e303ffb22e57ce773b6a85573bcd32604",
+      "destination": "src/sprite/ffi.rs"
+    },
+    {
+      "source": "crates/bevy_nds_sprite/src/lib.rs",
+      "sha256": "46580ca04170d28de31286dc5c0dabf2deadb52f8ce9ecbccefe69357fcac290",
+      "destination": "src/sprite/mod.rs"
+    },
+    {
+      "source": "crates/bevy_nds_sprite/src/slots.rs",
+      "sha256": "3c13b3b4504b96f170c89d778333b80b2a3d8c7931105f28aecd964df1b14e0a",
+      "destination": "src/sprite/slots.rs"
+    },
+    {
+      "source": "crates/bevy_nds_text/src/lib.rs",
+      "sha256": "4fa54e9183b745a2fa35401273aa56ffa1571939c418ada1ba0a057d3104a502",
+      "destination": "src/text/mod.rs"
+    },
+    {
+      "source": "crates/bevy_nds_time/src/lib.rs",
+      "sha256": "f50ba97e9d7326ac5bdfa10b9cd22b2e70b7deea486ad834643ba995c5765f8a",
+      "destination": "src/time.rs",
+      "adaptation": "Merged into the shared runtime/video/API; source is not copied verbatim."
+    },
+    {
+      "source": "crates/bevy_nds_video/src/lib.rs",
+      "sha256": "72ff68e77a7827052d7bc0828a3c3ded7a707ddf794df78c0c59c547f35d7d30",
+      "destination": "src/video/hardware.rs",
+      "adaptation": "Merged into the shared runtime/video/API; source is not copied verbatim."
+    },
+    {
+      "source": "crates/obj2dl/Cargo.toml",
+      "sha256": "714e626fd27e3ceee50d6909b1ab0268f5667f7cff44599860cadeda1ebf61e6",
+      "destination": "tools/obj2dl/Cargo.toml"
+    },
+    {
+      "source": "crates/obj2dl/src/lib.rs",
+      "sha256": "5ff72591ffc10e5b4761e9da5cdaadd0a333da48c6392c81b5c3800cbdd4c16c",
+      "destination": "tools/obj2dl/src/lib.rs"
+    },
+    {
+      "source": "crates/obj2dl/src/main.rs",
+      "sha256": "a7a2e69b438b7a46e2489c1343a3c7d8bb77dad784dadaf8fc7f412351aaa337",
+      "destination": "tools/obj2dl/src/main.rs"
+    },
+    {
+      "source": "crates/perfread/Cargo.toml",
+      "sha256": "77f8ca9a6e5b6ee204481c91d0522e4ccdfbbe12fef574207664944d8ff1d079",
+      "destination": "tools/perfread/Cargo.toml"
+    },
+    {
+      "source": "crates/perfread/src/main.rs",
+      "sha256": "a3d77ed8decdabda2dbf43703d791fcc555f7c63c173071e07759fce62d95fe2",
+      "destination": "tools/perfread/src/main.rs"
+    },
+    {
+      "source": "crates/png2bg/Cargo.toml",
+      "sha256": "e77f7c7b2a8872612fa589d6d95a9979774ab0307cddd9ed29969f5783c59627",
+      "destination": "tools/png2bg/Cargo.toml"
+    },
+    {
+      "source": "crates/png2bg/src/lib.rs",
+      "sha256": "ef125d7707689428e8abb80b41d0865a0c6361b8bd40ea3a4c4a0f58062752a6",
+      "destination": "tools/png2bg/src/lib.rs"
+    },
+    {
+      "source": "crates/png2bg/src/main.rs",
+      "sha256": "caf19961dcff26cfa1fabcab24804a7b7701636e7ebfd414956a9b5d656bbdcc",
+      "destination": "tools/png2bg/src/main.rs"
+    },
+    {
+      "source": "crates/png2sprite/Cargo.toml",
+      "sha256": "8e74b302d5e22b6e2b03558ee01de2c7c964a266606cc42e2a6a312f0d649cc6",
+      "destination": "tools/png2sprite/Cargo.toml"
+    },
+    {
+      "source": "crates/png2sprite/src/lib.rs",
+      "sha256": "a6986540aebdd4f48aaa58517c5109389e70e2dc63c2ba2b46608e655b618a67",
+      "destination": "tools/png2sprite/src/lib.rs"
+    },
+    {
+      "source": "crates/png2sprite/src/main.rs",
+      "sha256": "344ebcdb7aeddeed3f845e79277e4a055e26dab71624cd0640133bbc43c8f933",
+      "destination": "tools/png2sprite/src/main.rs"
+    },
+    {
+      "source": "crates/scene2bin/Cargo.toml",
+      "sha256": "62b519945dff22bb69811b1afa1ad4f4139c7ea2ff160a3acac92eb2ce1bbdde",
+      "destination": "tools/scene2bin/Cargo.toml"
+    },
+    {
+      "source": "crates/scene2bin/src/lib.rs",
+      "sha256": "96d01cc3804b94595c981ef9c7cd6cd67d0e2ce688b25f14c8e06f628a6cad7a",
+      "destination": "tools/scene2bin/src/lib.rs"
+    },
+    {
+      "source": "crates/scene2bin/src/main.rs",
+      "sha256": "b0cca7b59f71d964f721be7dfedb7cb9665af1fcc16636418389cd8e654b3db4",
+      "destination": "tools/scene2bin/src/main.rs"
+    },
+    {
+      "source": "crates/wav2bank/Cargo.toml",
+      "sha256": "bd9932ff18c0ca7a3a5ed984ee27f9c94370a0dd15c3ef404952d897f670e6da",
+      "destination": "tools/wav2bank/Cargo.toml"
+    },
+    {
+      "source": "crates/wav2bank/src/ids.rs",
+      "sha256": "64395dfc0327791ed2507f6fe979c2e038b8e1382526e21e60ef7d8b0b68675d",
+      "destination": "tools/wav2bank/src/ids.rs"
+    },
+    {
+      "source": "crates/wav2bank/src/lib.rs",
+      "sha256": "7b38fc5f8722078f324911aff7aecf3fd0800908ba17c5a8e197ab0f035daca6",
+      "destination": "tools/wav2bank/src/lib.rs"
+    },
+    {
+      "source": "crates/wav2bank/src/main.rs",
+      "sha256": "7afa3d41293c72965e1627c13a9626a99159d652f33fd65d4d8c5399630d91ed",
+      "destination": "tools/wav2bank/src/main.rs"
+    },
+    {
+      "source": "crates/wav2bank/src/wav.rs",
+      "sha256": "a0a8d81267b8e0c63da30ac3301990f5b84857145af1771124baaec03419a4c6",
+      "destination": "tools/wav2bank/src/wav.rs"
+    },
+    {
+      "source": "src/analysis.rs",
+      "sha256": "5a8bf9cde87139781517f58728b4750d9e272258e2776954b3c0a9071e7f3890",
+      "destination": "examples/digraph/analysis.rs"
+    },
+    {
+      "source": "src/bottom2d.rs",
+      "sha256": "3f011db532c56424565b268499598b0c0d550c2a55bd59a64309f185d9c3c33f",
+      "destination": "examples/digraph/bottom2d.rs"
+    },
+    {
+      "source": "src/dag.rs",
+      "sha256": "ecafcf289e34bd1261f91b89500b3206e3ccd9a4f344d5506afa431aa9a8dc7e",
+      "destination": "examples/digraph/dag.rs"
+    },
+    {
+      "source": "src/editor.rs",
+      "sha256": "29aae0fb2a7c6e2a5b0b3c27c1cc9891998e6cc937e1614d1db02233546cebff",
+      "destination": "examples/digraph/editor.rs"
+    },
+    {
+      "source": "src/graph.rs",
+      "sha256": "909368f6e531e5324def5b4b0d5d3cdb0a41f505c6b1e886e02831725fc32e17",
+      "destination": "examples/digraph/graph.rs"
+    },
+    {
+      "source": "src/main.rs",
+      "sha256": "18cbbe9f15b7dfbc82a8b7980b83fda6cd386fdd584c7194545abe7a39657eb6",
+      "destination": "examples/digraph.rs"
+    },
+    {
+      "source": "src/project.rs",
+      "sha256": "ad9a1785312f0a04927b7d0621081dc3f692b0482a89005de5d13063c5836f52",
+      "destination": "examples/digraph/project.rs"
+    },
+    {
+      "source": "src/stats.rs",
+      "sha256": "aafe90802785821944eea8aaba97faa9ff696996f837e0a76a8057b2aca6439d",
+      "destination": "examples/digraph/stats.rs"
+    },
+    {
+      "source": "src/top2d.rs",
+      "sha256": "e5ab05ac410740d3de1edf4795e9783e6be3615b20bbd484cf22c59f652d2431",
+      "destination": "examples/digraph/top2d.rs"
+    },
+    {
+      "source": "src/ui.rs",
+      "sha256": "a9211d152ca5b57de47963ccceb8a2ea7d88cccd07f915ba0e384295eea7853a",
+      "destination": "examples/digraph/ui.rs"
+    },
+    {
+      "source": "tools/scene-editor/Cargo.toml",
+      "sha256": "1a599290c1652b421e950a7c8394191b25824e16043a7bbf6349610acfe970bc",
+      "destination": "tools/scene-editor/Cargo.toml"
+    },
+    {
+      "source": "tools/scene-editor/src/app.rs",
+      "sha256": "789c81b4589417e2730bfac9851e2332fde87f329ff285864d6ecbe6b6559a01",
+      "destination": "tools/scene-editor/src/app.rs"
+    },
+    {
+      "source": "tools/scene-editor/src/canvas.rs",
+      "sha256": "341e184d09cfe2f0f794773c9bb8a6ac5a2b330bb1e4671985d3fb9bfceda888",
+      "destination": "tools/scene-editor/src/canvas.rs"
+    },
+    {
+      "source": "tools/scene-editor/src/history.rs",
+      "sha256": "05afdeb45ed36d53c2087515871214d66d4dbfcb04c999f088aeb93f0cf7ca4d",
+      "destination": "tools/scene-editor/src/history.rs"
+    },
+    {
+      "source": "tools/scene-editor/src/main.rs",
+      "sha256": "109303897a49af6261c087473134643d05256bf25d1421f3bf0c180d7a06c119",
+      "destination": "tools/scene-editor/src/main.rs"
+    },
+    {
+      "source": "tools/scene-editor/src/panel.rs",
+      "sha256": "6904b5805e316ccea06fa3af0e256b50368f00fc646c2805cb6161f3cbfdcbbf",
+      "destination": "tools/scene-editor/src/panel.rs"
+    },
+    {
+      "source": "tools/scene-editor/src/viewport.rs",
+      "sha256": "ec723dbd615e98b99ffc92c5e72451906bd6cbe1e3a7cd7028b76cb0a5cf380d",
+      "destination": "tools/scene-editor/src/viewport.rs"
+    },
+    {
+      "source": "tools/scene-editor/src/widgets.rs",
+      "sha256": "1f51adabb51ff8c0d0bbcee940a6975c0fe723d863769b487967bf163b775341",
+      "destination": "tools/scene-editor/src/widgets.rs"
+    }
+  ]
+}

@@ -22,6 +22,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--emulator", required=True)
     parser.add_argument("--xvfb", default=shutil.which("Xvfb"))
+    parser.add_argument("--examples", nargs="+", default=["drawing", "hello"], choices=["drawing", "hello", "hardware", "paint", "digraph"])
     args = parser.parse_args()
     if not args.xvfb:
         parser.error("Indica --xvfb /ruta/a/Xvfb")
@@ -46,7 +47,7 @@ def main():
         env = dict(os.environ, DISPLAY=display, SDL_RENDER_DRIVER="software",
                    LD_PRELOAD=str(shim), SDL_AUDIODRIVER="dummy",
                    XDG_CONFIG_HOME=str(out / "config"), XDG_DATA_HOME=str(out / "data"))
-        for name in ["drawing", "hello"]:
+        for name in args.examples:
             logpath = out / f"{name}.log"
             rom = ROOT / f"output/{name}.nds"
             rom_hash = hashlib.sha256(rom.read_bytes()).hexdigest()
@@ -91,7 +92,7 @@ def main():
                     assert abs(x - 80) <= 2 and abs(y - 240) <= 2, "No se recibió el lápiz"
                     report[name] = {"top_matches_host": True, "animated": True,
                                     "touch": True, "touch_position": [x, y - 192]}
-                else:
+                elif name == "hello":
                     subprocess.run(["xdotool", "windowfocus", window, "keydown", "x"], env=env, check=True)
                     time.sleep(0.2)
                     subprocess.run(["xdotool", "keyup", "x"], env=env, check=True)
@@ -100,12 +101,40 @@ def main():
                     assert first.getpixel((128, 288)) == (24, 49, 82)
                     assert second.getpixel((128, 288)) == (24, 140, 107), "No se recibió A (tecla X del emulador)"
                     report[name] = {"boot": True, "button_a": True}
+                elif name == "hardware":
+                    time.sleep(1)
+                    second = capture("rotated")
+                    assert ImageChops.difference(first.crop((0,0,256,192)), second.crop((0,0,256,192))).getbbox(), "La geometría 3D no cambia"
+                    subprocess.run(["xdotool", "mousemove", "--window", window, "80", "332", "mousedown", "1"], env=env, check=True)
+                    time.sleep(1)
+                    touched = capture("sprite-touch")
+                    subprocess.run(["xdotool", "mouseup", "1"], env=env, check=True)
+                    region = (70, 322, 112, 372)
+                    assert ImageChops.difference(second.crop(region), touched.crop(region)).getbbox(), "El sprite no respondió al lápiz"
+                    report[name] = {"boot": True, "animated_3d": True, "sprite_touch": True}
+                elif name == "paint":
+                    assert first.crop((0,0,256,192)).getbbox(), "La consola superior quedó oculta"
+                    for i in range(5):
+                        subprocess.run(["xdotool", "mousemove", "--window", window, str(60+i*10), str(270+i*10)], env=env, check=True)
+                        if i == 0:
+                            subprocess.run(["xdotool", "mousedown", "1"], env=env, check=True)
+                        time.sleep(0.2)
+                    subprocess.run(["xdotool", "mouseup", "1"], env=env, check=True)
+                    time.sleep(0.5)
+                    painted = capture("stroke")
+                    region = (48, 256, 128, 330)
+                    assert ImageChops.difference(first.crop(region), painted.crop(region)).getbbox(), "El canvas no recibió el trazo"
+                    report[name] = {"boot": True, "touch_stroke": True}
+                else:
+                    assert len(first.crop((0,0,256,192)).getcolors(49152)) > 4, "No apareció el grafo"
+                    assert len(first.crop((0,192,256,384)).getcolors(49152)) > 4, "No apareció la interfaz inferior"
+                    report[name] = {"boot": True, "two_screens": True}
                 assert hashlib.sha256(rom.read_bytes()).hexdigest() == rom_hash, "La ROM cambió durante la prueba"
                 report[name]["rom_sha256"] = rom_hash
                 print(json.dumps({name: report[name]}), flush=True)
             finally:
                 stop(emulator)
-        (out / "checks.json").write_text(json.dumps(report, indent=2) + "\n")
+        (out / ("checks-" + "-".join(args.examples) + ".json")).write_text(json.dumps(report, indent=2) + "\n")
     finally:
         stop(server)
 

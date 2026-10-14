@@ -7,6 +7,7 @@
 #include <stdlib.h>
 
 static PrintConsole top_console;
+static PrintConsole bottom_console;
 static int top_bg;
 static int bottom_bg;
 static int video_claimed;
@@ -152,3 +153,20 @@ int devy_storage_mkdir(const char *path)
     return -2;
 }
 #endif
+
+int devy_hardware_init(void)
+{
+    if (video_claimed) return 0;
+    video_claimed = 1;
+    powerOn(POWER_ALL_2D);
+    lcdMainOnTop();
+    videoSetMode(MODE_0_2D);
+    videoSetModeSub(MODE_0_2D);
+    vramSetBankA(VRAM_A_MAIN_BG);
+    vramSetBankC(VRAM_C_SUB_BG);
+    consoleInit(&top_console, 0, BgType_Text4bpp, BgSize_T_256x256, 22, 3, true, true);
+    consoleInit(&bottom_console, 0, BgType_Text4bpp, BgSize_T_256x256, 22, 3, false, true);
+    setBrightness(3, 0);
+    return 1;
+}
+PrintConsole *devy_get_console(uint32_t screen) { return screen == 0 ? &top_console : &bottom_console; }

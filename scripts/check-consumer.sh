@@ -6,16 +6,18 @@ devy_tmp="$(mktemp -d "${TMPDIR:-/tmp}/devy-consumer.XXXXXX")"
 trap 'rm -rf -- "$devy_tmp"' EXIT
 python3 - "$devy_root" "$devy_tmp" <<'PY'
 import json
+import shutil
 from pathlib import Path
 import sys
 root, package = map(Path, sys.argv[1:])
 (package / 'src').mkdir()
+shutil.copyfile(root / "assets/cube.obj", package / "cube.obj")
 (package / 'Cargo.toml').write_text('''[package]
 name = "devy-consumer"
 version = "0.1.0"
 edition = "2024"
 [dependencies]
-devy = { path = ''' + json.dumps(str(root)) + ''' }
+ds = { package = "devy", path = ''' + json.dumps(str(root)) + ''' }
 [profile.dev]
 panic = "abort"
 opt-level = 1
@@ -29,7 +31,7 @@ codegen-units = 1
 ''')
 (package / 'src/main.rs').write_text('''#![cfg_attr(target_vendor = "nintendo", no_std)]
 #![cfg_attr(target_vendor = "nintendo", no_main)]
-use devy::prelude::*;
+use ds::prelude::*;
 
 #[derive(Component)]
 struct Value(u32);
@@ -40,7 +42,7 @@ struct Tick;
 #[derive(SystemSet, Clone, Debug, PartialEq, Eq, Hash)]
 struct Logic;
 
-fn setup(mut commands: Commands) { commands.spawn(Value(7)); }
+fn setup(mut commands: Commands) { commands.spawn(Value(7)); commands.spawn(ds::include_obj!("cube.obj", center)); }
 fn sum(values: Query<&Value>, mut total: ResMut<Total>, mut events: EventWriter<Tick>) {
     total.0 = values.iter().map(|v| v.0).sum();
     events.write(Tick);
@@ -60,7 +62,7 @@ fn main() {
 }
 #[cfg(target_vendor = "nintendo")]
 #[unsafe(no_mangle)]
-pub extern "C" fn main() -> core::ffi::c_int { devy::run(app()) }
+pub extern "C" fn main() -> core::ffi::c_int { ds::run(app()) }
 ''')
 PY
 cargo +stable generate-lockfile --offline --manifest-path "$devy_tmp/Cargo.toml"

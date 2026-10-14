@@ -19,7 +19,7 @@ pub fn run(mut app: App) -> ! {
     app.cleanup();
     loop {
         app.update();
-        crate::platform::wait_vblank();
+        crate::cothread::yield_until_vblank();
         present(&mut app);
     }
 }

@@ -2,7 +2,7 @@
 name = "devy"
 version = "0.1.0"
 edition = "2024"
-description = "Bevy ECS para Nintendo DS con BlocksDS, extraído de Digraph-dsi"
+description = "Bevy ECS para Nintendo DS con BlocksDS, iteración de kts-nds y Digraph"
 publish = false
 links = "devy_nds"
 build = "build.rs"
@@ -15,7 +15,15 @@ allocator = []
 panic-handler = []
 storage = []
 
+[workspace]
+resolver = "3"
+members = ["tools/bevy_nds_3d_obj", "tools/bevy_nds_3d_macros", "tools/obj2dl", "tools/wav2bank", "tools/png2sprite", "tools/png2bg", "tools/scene2bin", "tools/perfread"]
+default-members = ["."]
+exclude = ["tools/scene-editor"]
+
 [dependencies]
+libm = { version = "0.2", default-features = false }
+bevy_nds_3d_macros = { path = "tools/bevy_nds_3d_macros" }
 bevy_app = { version = "=0.16.1", default-features = false }
 bevy_ecs = { version = "=0.16.1", default-features = false }
 bevy_input = { version = "=0.16.1", default-features = false, features = ["libm"] }
@@ -28,12 +36,21 @@ bevy_ecs = { version = "=0.16.1", default-features = false, features = ["critica
 bevy_input = { version = "=0.16.1", default-features = false, features = ["critical-section"] }
 bevy_time = { version = "=0.16.1", default-features = false, features = ["critical-section"] }
 critical-section = { version = "1.2", features = ["restore-state-bool"] }
+portable-atomic = { version = "1", default-features = false, features = ["critical-section"] }
 
 [target.'cfg(not(target_vendor = "nintendo"))'.dependencies]
 bevy_app = { version = "=0.16.1", default-features = false, features = ["std"] }
 bevy_ecs = { version = "=0.16.1", default-features = false, features = ["std"] }
 bevy_input = { version = "=0.16.1", default-features = false, features = ["std"] }
 bevy_time = { version = "=0.16.1", default-features = false, features = ["std"] }
+
+[dev-dependencies]
+serde = { version = "1", default-features = false, features = ["derive", "alloc"] }
+postcard = { version = "1", default-features = false, features = ["alloc"] }
+
+[[example]]
+name = "digraph"
+required-features = ["runtime"]
 
 [[example]]
 name = "hello"

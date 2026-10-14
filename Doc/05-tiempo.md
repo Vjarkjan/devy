@@ -42,7 +42,8 @@ assert_eq!(app.world().resource::<Time>().elapsed(), Duration::from_secs(1));
 `FrameDelta` sólo controla el host. La primera lectura DS establece el origen
 y entrega delta cero. El plugin no instala `Time<Virtual>`, `Time<Fixed>` ni
 un bucle de `FixedUpdate`; si necesitas pasos fijos, añade un acumulador propio.
-Tampoco suministra fecha de calendario o RTC.
+La fecha de calendario corresponde a `RtcPlugin` y `WallClock`, explicados
+en [relojes y matemáticas](14-matematicas-relojes.md).
 
 ## Coste de presentación
 

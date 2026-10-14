@@ -1,4 +1,21 @@
-# Referencias de la extracción
+# Fuentes y adaptaciones
+
+La integración completa usa el árbol local `kts-nds`, no sólo el checkout de
+Cargo. El [inventario de archivos](source-inventory.json) cubre todas las
+fuentes Rust de sus crates `bevy_nds*`, los módulos activos de Digraph, las
+herramientas y los assets. Cada entrada contiene el hash de **origen** y su
+destino; el hash no implica que el archivo adaptado sea idéntico.
+
+Las adaptaciones incluyen imports internos, selección Nintendo/host,
+configuraciones exclusivas de VRAM, consolas con tipos del SDK, bindings stdio
+compartidos y presentación de texto/OAM/scroll durante `Present`. Se validan los
+tamaños antes de subir gráficos a VRAM y se conservan los formatos de assets.
+El conversor de sprites lee las dimensiones reales del PNG y elimina relleno
+de paleta. Las tareas reservan una pila configurable para sus operaciones de
+archivos.
+
+La tabla siguiente conserva la procedencia de la primera extracción del
+renderer indexado, ahora parte del mismo motor.
 
 Instantánea consultada el 13 de octubre de 2026. Estos hashes identifican los
 archivos de origen; no son una declaración de igualdad con el código de devy.

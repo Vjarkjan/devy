@@ -2,7 +2,13 @@
 #[cfg(any(target_vendor = "nintendo", test))]
 pub(crate) mod copy;
 mod frame;
+mod hardware;
 pub use frame::{Color, DrawError, HEIGHT, IndexedFrame, PIXELS, Rect, WIDTH};
+#[cfg(target_vendor = "nintendo")]
+pub(crate) use hardware::init_screens;
+pub use hardware::{
+    ConsoleHandle, Consoles, HardwareVideoPlugin, PrintConsole, master_bright_bits,
+};
 
 use crate::{platform::VideoBackend, runtime::Present};
 use bevy_app::{App, Plugin, PreStartup};
@@ -78,6 +84,10 @@ pub struct VideoPlugin;
 
 impl Plugin for VideoPlugin {
     fn build(&self, app: &mut App) {
+        assert!(
+            !app.is_plugin_added::<HardwareVideoPlugin>(),
+            "VideoPlugin y HardwareVideoPlugin reservan la misma VRAM"
+        );
         app.init_resource::<Frames>()
             .init_resource::<MasterBright>()
             .init_resource::<FrameStats>()

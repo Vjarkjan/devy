@@ -1,98 +1,90 @@
 # Organización y decisiones de diseño
 
-## Mapa del código
+## Un crate de ejecución
 
-| Archivo | Responsabilidad |
+Los antiguos `bevy_nds_*` son módulos de `devy`. La aplicación depende de un
+solo crate para el motor. Bevy ECS sigue siendo una dependencia en versión
+0.16.1; no se ha sustituido su implementación ni se afirma equivalencia con
+todos los plugins de Bevy de escritorio.
+
+| Módulo | Responsabilidad |
 | --- | --- |
-| `src/lib.rs` | API pública, reexports de Bevy y grupos de plugins |
-| `src/runtime.rs` | Schedule Present, bucle DS, allocator, panic y critical-section |
-| `src/input.rs` | Lectura por frame, botones, contactos y controles según la mano |
-| `src/time.rs` | Reloj Bevy y conversión del contador |
-| `src/video/frame.rs` | Píxeles, paletas, geometría y regiones modificadas |
-| `src/video/copy.rs` | Escrituras de 16/32 bits, con pruebas de límites |
-| `src/video/mod.rs` | Recursos de vídeo, inicialización y presentación |
-| `src/platform.rs` | Límite Rust/SDK; backend inerte en host |
-| `src/storage.rs` | Interfaz FAT opcional |
-| `native/nds.c` | Tipos, macros y llamadas reales de libnds |
-| `build.rs` | Compilación y archivo estático del adaptador C |
-| `scripts/nds-linker.sh` | CRT, script de enlace y bibliotecas de BlocksDS |
-| `scripts/nds.sh` | Compilación y empaquetado de aplicaciones |
+| `runtime`, `platform` | Bucle ARM9, allocator, sección crítica y adaptadores del renderer indexado |
+| `input`, `gesture`, `stroke` | Controles, reconocimiento y geometría de trazos |
+| `video` | Framebuffers y configuración alternativa por capas |
+| `text`, `background`, `sprite` | Consolas ECS, fondos, canvas y OAM |
+| `render3d`, `culling`, `math` | Geometría hardware, visibilidad y punto fijo |
+| `nitrofs`, `storage`, `save` | Assets de ROM, FAT acotado y guardado por slots |
+| `audio`, `scene` | Maxmod y carga de escenas |
+| `time`, `rtc`, `diagnostics` | Duraciones, fecha local y medición |
 
-## Un crate de plataforma
+La macro procedural de OBJ requiere un crate separado por las reglas de Rust.
+Tanto ella como los conversores de `tools/` se ejecutan en el ordenador. No
+son motores duplicados ni dependencias de ejecución adicionales en ARM9.
 
-El workspace original separa capacidades en muchos `bevy_nds_*`. Aquí se
-concentran las que necesita el editor de digráficas y las operaciones comunes
-para aplicaciones 2D. Los módulos internos mantienen la separación del código;
-las aplicaciones sólo necesitan una dependencia `devy`.
+## Dos configuraciones de vídeo
 
-Se conserva Bevy ECS 0.16.1 sin modificar su implementación. Fijar esa versión
-permite reutilizar el modelo del proyecto de origen. Actualizar Bevy requiere
-revisar API, features `no_std`, tamaño de ROM y pruebas DS conjuntamente.
+`DsPlugins` instala el renderer indexado. `HardwarePlugins` conserva la
+configuración por capas de kts-nds y sus servicios comunes. Ambos comparten
+`DsScreen`, entrada, tiempo y runtime; la configuración de vídeo es exclusiva.
+No se pueden instalar los dos grupos en una misma aplicación.
 
-## Hardware elegido por target
+| Región | Renderer indexado | Renderer por capas |
+| --- | --- | --- |
+| VRAM A | Consola principal | Fuente BG0, tiles/mapa BG1 |
+| VRAM B | BG3 RGB555, 256 × 256 | Bitmap BG3 opcional, 256 × 256 |
+| VRAM C | BG3 indexado, 256 × 256 | Consola secundaria y tiles BG1 **o** canvas BG2 |
+| VRAM I | Disponible para OAM secundario | OAM secundario, 16 KiB |
+| BG0 principal | Consola opcional | Consola **o** salida 3D |
 
-La condición es `target_vendor = "nintendo"`. No se usa `cfg(unix)` para
-distinguir host y consola, porque el target DS también declara la familia Unix.
-`build.rs` rechaza otros targets Nintendo que no sean el JSON ARM9 suministrado.
+Las consolas usan mapa en 44–46 KiB y fuente en 48–64 KiB de A/C.
+Los tiles principales ocupan 0–16 KiB y los secundarios 16–32 KiB; sus mapas,
+32–34 KiB. El canvas secundario ocupa 0–32 KiB: por eso el crate rechaza su
+combinación con tiles secundarios. El bitmap principal empieza en B.
 
-El host utiliza los recursos y sistemas reales, pero no enlaza libnds ni accede
-a direcciones MMIO. La entrada y el delta se inyectan. Esto permite probar la
-lógica sin convertir el backend de host en un emulador de hardware.
+`DsScreen` sigue la asociación habitual principal/superior y
+secundario/inferior. Cambiar `Display3d` intercambia los motores completos entre
+LCDs; también se desplazan sus capas 2D y su OAM. El touch siempre corresponde
+al LCD físico inferior.
 
-## Memoria y vídeo
+Los buffers indexados usan 98 304 bytes de píxeles en RAM, 1 024 de paletas y
+1 536 de intervalos por fila, además de metadatos. El texto compara dos grids
+32 × 24 y escribe sólo diferencias. El renderer 3D mantiene display lists y
+recalcula matrices/cajas cuando cambian las transformaciones. Los assets se
+preparan fuera de la consola.
 
-El reparto conserva el usado por Digraph-dsi:
-
-| Recurso | Ubicación |
-| --- | --- |
-| Consola superior BG0 | VRAM A, 128 KiB reservados |
-| Bitmap superior BG3 RGB555 | VRAM B, 128 KiB reservados |
-| Bitmap inferior BG3 indexado | VRAM C; bitmap 256 × 256, 64 KiB |
-| Píxeles visibles compartidos | RAM, 48 KiB por pantalla |
-
-Las dos pantallas consumen **98 304 bytes de píxeles en RAM**, más 1 024 bytes
-de paletas y 1 536 bytes de intervalos por fila. Se añaden metadatos, allocator
-y el estado de Bevy. Este cálculo no representa el consumo total del programa.
-Los píxeles se construyen directamente en el heap mediante `Vec` y `Box` para
-evitar temporales de 48 KiB en la pila.
-
-Cada fila mantiene mínimo y máximo modificados. Es un coste fijo, sin listas
-dinámicas de rectángulos. Cambios distantes en una misma fila pueden copiar
-píxeles intermedios; a cambio, no se asigna memoria al dibujar ni al calcular
-las regiones de transferencia.
-
-Las referencias a VRAM nunca se exponen como slices mutables. El presentador
-usa escrituras volátiles de 16 o 32 bits: la VRAM de DS no admite escrituras
-ordinarias de un byte. No se usa DMA ni se presenta doble buffer.
-
-## Secuencia de un frame
+## Secuencia del frame
 
 ```text
 App::update()
-  First: avanzar Time
-  PreStartup/Startup: inicializar, sólo en la primera actualización
-  PreUpdate: escanear controles y actualizar Touches
-  Update/PostUpdate/Last: lógica de la aplicación y dibujo en RAM
-esperar VBlank
-Present: transferir regiones, paleta y brillo; registrar FrameStats
+  First: tiempo y RTC
+  PreStartup/Startup: inicialización, una sola vez
+  PreUpdate: entrada, gestos, trazos y cargas pendientes
+  Update/PostUpdate/Last: lógica, composición y envío de geometría 3D
+ceder a tareas cooperativas hasta VBlank
+Present: framebuffers, texto, OAM, scroll, brillo y sistemas registrados aquí
 ```
 
-`Present` está fuera del schedule `Main` de Bevy. Así, una lógica lenta no
-consume directamente el inicio del siguiente intervalo de presentación.
-Si el propio envío a VRAM tarda demasiado, todavía puede alcanzar la zona
-visible. `run` nunca retorna y no procesa `AppExit` como salida al cargador.
+`Present` usa un ejecutor de un solo hilo. La geometría 3D conserva su envío
+en `Last`; el motor de geometría sincroniza su intercambio con el hardware.
+Las cargas y el trabajo por frame siguen consumiendo tiempo. Mover una función
+a una tarea sólo ayuda si cede el control durante su ejecución.
 
-## FFI y exclusividad
+## Hardware y host
 
-El compilador C interpreta `PrintConsole`, `touchPosition`, macros de vídeo y
-`FILE`. Rust intercambia punteros a buffers acotados y escalares de tamaño
-conocido. No se adivina el tamaño de las estructuras del SDK.
+El código DS se selecciona con `target_vendor = "nintendo"`. La familia Unix
+no sirve para distinguirlo: el target JSON DS también pertenece a esa familia.
 
-`Video` es un recurso no transferible entre hilos. El adaptador C sólo concede
-un propietario DS durante toda la ejecución; otro intento de inicialización
-falla. No hay `unsafe impl Send/Sync` sobre punteros de pantalla.
+En host se ejecutan el ECS, los parsers, las matemáticas y la entrada inyectada.
+Los plugins de hardware mantienen recursos sin acceder a MMIO. NitroFS y audio
+indican que no están disponibles; las tareas se resuelven sincrónicamente y el
+RTC parte del epoch. Este comportamiento permite pruebas deterministas.
 
-La sección crítica guarda y restaura IME, con barreras de compilador. Esto
-sirve para el ARM9; no sincroniza memoria compartida con ARM7. El allocator
-usa el heap preparado por el CRT de BlocksDS. El panic handler necesita cero
-formateo y puede mostrar el error aun antes de inicializar la consola.
+El adaptador C conserva los tipos reales del SDK para consolas y entrada.
+Los módulos heredados de kts-nds mantienen bindings privados de libnds/Maxmod
+y escrituras de registros. Las consolas comparten una declaración opaca de
+`PrintConsole` y NitroFS/guardado comparten los bindings de stdio. Los envíos a
+VRAM emplean escrituras de 16 o 32 bits.
+
+La sección crítica protege ARM9 mediante IME; no sincroniza el ECS con ARM7.
+El singleton de vídeo impide volver a inicializar sus bancos desde otra App.
