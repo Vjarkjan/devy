@@ -1,8 +1,7 @@
 # devy · BlocksDS
 
 Devy reúne en **un crate de ejecución** la integración Rust/Bevy/BlocksDS de
-`kts-nds` y su evolución local como Digraph. Conserva Bevy ECS 0.16.1 y reúne
-los renderizadores, entrada, archivos, audio y servicios del motor.
+`kts-nds` y su evolución al desarrollar la applicacion [Digraph DS](https://github.com/Vjarkjan/digraph-ds).
 
 Incluye 2D por framebuffer y por capas, sprites OAM, 3D por hardware, touch,
 gestos, trazos, FAT/SD, NitroFS, Maxmod, tareas cooperativas y RTC.
